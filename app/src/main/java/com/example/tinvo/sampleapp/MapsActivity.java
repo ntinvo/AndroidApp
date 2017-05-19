@@ -45,17 +45,8 @@ public class MapsActivity extends FragmentActivity  implements OnMapReadyCallbac
     private ClusterManager<MyItem> mClusterManager;
     private GoogleMapsBottomSheetBehavior behavior;
     private ImageView parallax;
-
-    int[] mDrawables = {
-            R.drawable.cheese_3,
-            R.drawable.cheese_3,
-            R.drawable.cheese_3,
-            R.drawable.cheese_3,
-            R.drawable.cheese_3,
-            R.drawable.cheese_3
-    };
-
-
+    HashMap<String, String> maps = new HashMap<String, String>();
+    HashMap<String, String> addressesMap = new HashMap<String, String>();
     String[] places = {"Nhà Thờ Đức Bà", "Chợ Bến Thành", "Saigon Post Office", "Sài Gòn Zoo", "Bitexco Financial Tower", "Phạm Ngũ Lão Street", "Bến Nhà Rồng", "Công Viên Văn Hóa Đầm Sen", "Địa Đạo Củ Chi", "Khu Du Lịch Văn Thánh",
                        "Công Viên Gia Định", "Công Viên Lê Thị Riêng", "Dinh Độc Lập"};
     String[] placesAddresses = {"1, Công xã Paris, Bến Nghé, Quận 1, Hồ Chí Minh, Vietnam",
@@ -71,11 +62,7 @@ public class MapsActivity extends FragmentActivity  implements OnMapReadyCallbac
                              "Hoàng Minh Giám, Tân Bình, TP HCM, Vietnam",
                              "Bắc Hải, Cư xá Bắc Hải, Phường 15, Quận 10, Hồ Chí Minh, Vietnam",
                              "135 Nam Kỳ Khởi Nghĩa, Bến Thành, Quận 1, Hồ Chí Minh, Vietnam"};
-
     String[] placesAbbs = {"ntdb", "cbt", "sgp", "sgz", "btexco", "pnl", "bnr", "ds", "ddcc", "kdlvt", "cvgd", "cvltr", "ddl"};
-    HashMap<String, String> maps = new HashMap<String, String>();
-    HashMap<String, String> addressesMap = new HashMap<String, String>();
-    private static final LatLng SYDNEY = new LatLng(-33.87365, 151.20689);
 
 
     @Override
@@ -87,25 +74,17 @@ public class MapsActivity extends FragmentActivity  implements OnMapReadyCallbac
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 
         final View bottomsheet = findViewById(R.id.bottomsheet);
         behavior = GoogleMapsBottomSheetBehavior.from(bottomsheet);
         parallax = (ImageView) findViewById(R.id.parallax);
-//        parallax.setImageResource(R.drawable.ds);
         behavior.setParallax(parallax);
-//        behavior.anchorView(parallax);
         behavior.anchorView(bottomsheet);
-
-//        behavior.anchorView(fab);
-
-
 
         bottomsheet.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
                 // set the height of the parallax to fill the gap between the anchor and the top of the screen
-
                 CoordinatorLayout.LayoutParams layoutParams = new CoordinatorLayout.LayoutParams(parallax.getMeasuredWidth(),behavior.getAnchorOffset());
                 parallax.setLayoutParams(layoutParams);
                 bottomsheet.getViewTreeObserver().removeOnGlobalLayoutListener(this);
@@ -142,9 +121,23 @@ public class MapsActivity extends FragmentActivity  implements OnMapReadyCallbac
 ////        });
 //        String city = getIntent().getExtras().getString("city");
 //        Geocoder geoCoder = new Geocoder(this, Locale.getDefault());
+
+
+
 ////        bottomSheet = (NestedScrollView) findViewById(R.id.bottom_sheet);
 ////        bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
 //
+
+
+
+
+
+
+
+
+
+
+
 //        try {
 //            // Get the city and its Lat Lng
 //            List<Address> addresses = geoCoder.getFromLocationName(city, 1);
@@ -184,6 +177,16 @@ public class MapsActivity extends FragmentActivity  implements OnMapReadyCallbac
 ////                }
 ////            });
 //
+
+
+
+
+
+
+
+
+
+
 //            // Add
 //            for(int index = 0; index < places.length; index++) {
 //                String place = places[index];
@@ -215,7 +218,11 @@ public class MapsActivity extends FragmentActivity  implements OnMapReadyCallbac
 //                        return true;
 //                    }
 //                });
-////                bottomSheetBehavior.setPeekHeight(0);
+
+
+
+
+////              bottomSheetBehavior.setPeekHeight(0);
 //                List<Address> temp = geoCoder.getFromLocationName(place, 1);
 //                Double latTmp = temp.get(0).getLatitude();
 //                Double lngTmp = temp.get(0).getLongitude();
@@ -235,59 +242,121 @@ public class MapsActivity extends FragmentActivity  implements OnMapReadyCallbac
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         behavior.anchorMap(mMap);
-        // Add a marker in Sydney and move the camera
-        mMap.addMarker(new MarkerOptions().position(SYDNEY).title("Marker in Sydney"));
+        String city = getIntent().getExtras().getString("city");
+        Geocoder geoCoder = new Geocoder(this, Locale.getDefault());
 
+        try {
+            List<Address> cityList = geoCoder.getFromLocationName(city, 1);
+            Double lat = cityList.get(0).getLatitude();
+            Double lng = cityList.get(0).getLongitude();
 
-//        View btn =  findViewById(R.id.testBtn);
-//        if(btn == null) {
-//            Log.i("info", "btn is null");
-//        } else {
-//            Log.i("info", "btn is not null. OKAY");
-//        }
-//        btn.setOnClickListener(new View.OnClickListener() {
+            // Position the camera
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(10.7797838,106.6968061), 13));
+
+            // Add to cluster
+            mClusterManager = new ClusterManager<MyItem>(this, mMap);
+            mMap.setOnCameraIdleListener(mClusterManager);
+            mMap.setOnMarkerClickListener(mClusterManager);
+
+            // Add to maps
+            int i = 0;
+            for(String abb: placesAbbs) {
+                if(maps.get(abb) == null) {
+                    maps.put(places[i], abb);
+                }
+                if(addressesMap.get(places[i]) == null) {
+                    addressesMap.put(places[i], placesAddresses[i]);
+                }
+                i++;
+            }
+
+            // Add
+            for(String place: places) {
+                mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                    @Override
+                    public boolean onMarkerClick(Marker marker) {
+                        if(marker.getZIndex() == 1.0f) {
+                            marker.setZIndex(0.0f);
+                        } else if(marker.getZIndex() == 0.0f) {
+                            marker.setZIndex(1.0f);
+                        }
+
+                        View btn =  findViewById(R.id.testBtn);
+                        if(btn != null) {
+                            btn.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    if (behavior != null) {
+                                        behavior.setHideable(true);
+                                        behavior.setState(GoogleMapsBottomSheetBehavior.STATE_HIDDEN);
+                                    }
+                                }
+                            });
+                        }
+                        behavior.setState(GoogleMapsBottomSheetBehavior.STATE_COLLAPSED);
+                        behavior.setHideable(false);
+                        TextView placeNameCustomHeader = (TextView) findViewById(R.id.placeNameCustomHeader);
+                        TextView placeAddressCustomHeader = (TextView) findViewById(R.id.placeAddressCustomHeader);
+                        placeNameCustomHeader.setText(marker.getTitle());
+                        placeAddressCustomHeader.setText(marker.getSnippet());
+                        mMap.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
+                        return true;
+                    }
+                });
+
+                List<Address> temp = geoCoder.getFromLocationName(place, 1);
+                Double latTmp = temp.get(0).getLatitude();
+                Double lngTmp = temp.get(0).getLongitude();
+                String addr = addressesMap.get(place);
+
+                MyItem item = new MyItem(latTmp, lngTmp, place, addr);
+                mClusterManager.setRenderer(new IconRenderer(this.getApplicationContext(), mMap, mClusterManager));
+                mClusterManager.addItem(item);
+            }
+
+            mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+                @Override
+                public void onMapClick(LatLng latLng) {
+                    behavior.setHideable(true);
+                    behavior.setState(GoogleMapsBottomSheetBehavior.STATE_HIDDEN);
+                }
+            });
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+//        // Add a marker in Sydney and move the camera
+//        mMap.addMarker(new MarkerOptions().position(SYDNEY).title("Marker in Sydney"));
+//
+//        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
 //            @Override
-//            public void onClick(View v) {
-//                if(behavior == null) {
-//                    Log.i("info", "Error");
-//                } else {
-//                    Log.i("info", "OK");
-//                    behavior.setHideable(true);
-//                    behavior.setState(GoogleMapsBottomSheetBehavior.STATE_HIDDEN);
+//            public boolean onMarkerClick(Marker marker) {
+//                View btn =  findViewById(R.id.testBtn);
+//                if(btn != null) {
+//                    btn.setOnClickListener(new View.OnClickListener() {
+//                        @Override
+//                        public void onClick(View v) {
+//                            if (behavior != null) {
+//                                behavior.setHideable(true);
+//                                behavior.setState(GoogleMapsBottomSheetBehavior.STATE_HIDDEN);
+//                            }
+//                        }
+//                    });
 //                }
+//                behavior.setState(GoogleMapsBottomSheetBehavior.STATE_COLLAPSED);
+//                behavior.setHideable(false);
+//                mMap.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
+//                return true;
 //            }
 //        });
-
-
-
-        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                View btn =  findViewById(R.id.testBtn);
-                if(btn != null) {
-                    btn.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            if (behavior != null) {
-                                behavior.setHideable(true);
-                                behavior.setState(GoogleMapsBottomSheetBehavior.STATE_HIDDEN);
-                            }
-                        }
-                    });
-                }
-                behavior.setState(GoogleMapsBottomSheetBehavior.STATE_COLLAPSED);
-                behavior.setHideable(false);
-                mMap.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
-                return true;
-            }
-        });
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng latLng) {
-                behavior.setHideable(true);
-                behavior.setState(GoogleMapsBottomSheetBehavior.STATE_HIDDEN);
-            }
-        });
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(SYDNEY));
+//        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+//            @Override
+//            public void onMapClick(LatLng latLng) {
+//                behavior.setHideable(true);
+//                behavior.setState(GoogleMapsBottomSheetBehavior.STATE_HIDDEN);
+//            }
+//        });
+//        mMap.moveCamera(CameraUpdateFactory.newLatLng(SYDNEY));
     }
 }

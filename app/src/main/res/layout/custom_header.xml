@@ -10,17 +10,25 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Place's Name"
+        android:id="@+id/placeNameCustomHeader"
         android:textSize="32sp"
-        android:textColor="@android:color/black"
-        tools:textColor="@android:color/white"
-        android:text="@string/sydney"/>
+        tools:textColor="@android:color/white" />
 
     <TextView
+        android:id="@+id/placeAddressCustomHeader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="18sp"
-        android:text="@string/sydney_coordinates"
+        android:text="Place's Address"
         android:textColor="@android:color/black"
-        tools:textColor="@android:color/white"/>
+        android:textSize="18sp"
+        tools:textColor="@android:color/white" />
+
+    <Button
+        android:id="@+id/testBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Button" />
 
 </LinearLayout>
