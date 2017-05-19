@@ -46,5 +46,6 @@
         app:behavior_content_layout="@layout/custom_content"
         android:elevation="16dp"
         app:layout_behavior="com.example.tinvo.sampleapp.GoogleMapsBottomSheetBehavior" >
+
     </android.support.v4.widget.NestedScrollView>
 </android.support.design.widget.CoordinatorLayout>

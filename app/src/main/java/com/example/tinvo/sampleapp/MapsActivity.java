@@ -238,43 +238,43 @@ public class MapsActivity extends FragmentActivity  implements OnMapReadyCallbac
         // Add a marker in Sydney and move the camera
         mMap.addMarker(new MarkerOptions().position(SYDNEY).title("Marker in Sydney"));
 
-//        if(behavior == null) {
-//            Log.i("info", "WTF");
+
+//        View btn =  findViewById(R.id.testBtn);
+//        if(btn == null) {
+//            Log.i("info", "btn is null");
 //        } else {
-//            Log.i("info", "OK");
+//            Log.i("info", "btn is not null. OKAY");
 //        }
-        View btn = (Button) findViewById(R.id.testBtn);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                v.setBackgroundColor(Color.BLUE);
-                if(behavior == null) {
-                    Log.i("info", "WTF");
-                } else {
-                    Log.i("info", "OK");
-                    behavior.setState(GoogleMapsBottomSheetBehavior.STATE_COLLAPSED);
-                }
-
-            }
-        });
-
 //        btn.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View v) {
-//                Log.i("info", "clicked");
 //                if(behavior == null) {
-//                    Log.i("info", "WTF");
+//                    Log.i("info", "Error");
 //                } else {
 //                    Log.i("info", "OK");
+//                    behavior.setHideable(true);
+//                    behavior.setState(GoogleMapsBottomSheetBehavior.STATE_HIDDEN);
 //                }
-////                behavior.setHideable(true);
-////                behavior.setState(GoogleMapsBottomSheetBehavior.STATE_HIDDEN);
-////                Log.i("info", behavior.toString());
 //            }
 //        });
+
+
+
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
+                View btn =  findViewById(R.id.testBtn);
+                if(btn != null) {
+                    btn.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (behavior != null) {
+                                behavior.setHideable(true);
+                                behavior.setState(GoogleMapsBottomSheetBehavior.STATE_HIDDEN);
+                            }
+                        }
+                    });
+                }
                 behavior.setState(GoogleMapsBottomSheetBehavior.STATE_COLLAPSED);
                 behavior.setHideable(false);
                 mMap.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
