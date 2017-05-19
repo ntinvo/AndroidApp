@@ -24,6 +24,7 @@ import android.support.v4.view.VelocityTrackerCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.ViewDragHelper;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -244,7 +245,8 @@ public class GoogleMapsBottomSheetBehavior<V extends View> extends CoordinatorLa
                     R.styleable.GoogleMapsBottomSheetBehavior_Layout_behavior_anchorHeight, ANCHOR_HEIGHT_AUTO));
         }
 
-        setCollapsedColor(a.getColor(R.styleable.GoogleMapsBottomSheetBehavior_Layout_behavior_collapsedColor, Color.WHITE));
+        // TODO: this is where we set the color of the collapsed bottom sheet(2nd argument)
+        setCollapsedColor(a.getColor(R.styleable.GoogleMapsBottomSheetBehavior_Layout_behavior_collapsedColor, Color.LTGRAY));
         TypedValue anchorColorValue = new TypedValue();
         context.getTheme().resolveAttribute(R.attr.colorAccent, anchorColorValue, true);
         setAnchorColor(a.getColor(R.styleable.GoogleMapsBottomSheetBehavior_Layout_behavior_anchorColor,
@@ -274,10 +276,12 @@ public class GoogleMapsBottomSheetBehavior<V extends View> extends CoordinatorLa
             headerTextViews = getAllTextViewChildrenRecursively(headerLayout);
             bottomsheet.addView(headerLayout, 0);
             Drawable background = headerLayout.getBackground();
+
             if (background instanceof ColorDrawable) {
                 mCurrentColor = ((ColorDrawable) background).getColor();
             } else {
                 mCurrentColor = mCollapsedColor;
+                Log.i("info", Integer.toHexString(mCurrentColor));
             }
         }
 
@@ -1136,6 +1140,7 @@ public class GoogleMapsBottomSheetBehavior<V extends View> extends CoordinatorLa
     private ValueAnimator colorAnimation;
 
     private void updateHeaderColor(int newBackgroundColor, int newTextColor) {
+
         if (mCurrentColor != newBackgroundColor) {
             if (colorAnimation != null && colorAnimation.isRunning()) {
                 colorAnimation.cancel();

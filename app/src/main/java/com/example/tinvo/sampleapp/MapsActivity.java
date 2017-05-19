@@ -281,7 +281,7 @@ public class MapsActivity extends FragmentActivity  implements OnMapReadyCallbac
                             marker.setZIndex(1.0f);
                         }
 
-                        View btn =  findViewById(R.id.testBtn);
+                        View btn =  findViewById(R.id.directionBtnCustomHeader);
                         if(btn != null) {
                             btn.setOnClickListener(new View.OnClickListener() {
                                 @Override
