@@ -23,6 +23,7 @@ import android.os.Bundle;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
@@ -72,11 +73,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private ImageView parallax;
     private final static int MY_PERMISSION_FINE_LOCATION = 101;
     private List<Polyline> polylinePaths = new ArrayList<>();
+    private Distance myDistance;
+    private Duration myDuration;
 //    private Circle lastUserCircle;
 //    private long pulseDuration = 1000;
     private ValueAnimator lastPulseAnimator;
     private LocationManager locationManager;
     private Location currentLocation;
+    private TextView distanceCustomHeader;
+    private TextView durationCustomHeader;
 //
 //
 //    private List<Marker> originMarkers = new ArrayList<>();
@@ -252,6 +257,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             marker.setZIndex(1.0f);
                         }
 
+
                         View btn = findViewById(R.id.directionBtnCustomHeader);
                         if (btn != null) {
                             btn.setOnClickListener(new View.OnClickListener() {
@@ -259,8 +265,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 public void onClick(View v) {
                                     if (behavior != null) {
                                         behavior.setHideable(true);
-                                        behavior.setState(GoogleMapsBottomSheetBehavior.STATE_HIDDEN);
+                                        behavior.setState(GoogleMapsBottomSheetBehavior.STATE_COLLAPSED);
                                         getDirection(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), marker.getPosition());
+                                        distanceCustomHeader = (TextView) findViewById(R.id.distanceCustomHeader);
+                                        durationCustomHeader = (TextView) findViewById(R.id.durationCustomHeader);
+                                        TextView placeNameCustomHeader = (TextView) findViewById(R.id.placeNameCustomHeader);
+                                        placeNameCustomHeader.setTextSize(17f);
+                                        distanceCustomHeader.setVisibility(View.VISIBLE);
+                                        durationCustomHeader.setVisibility(View.VISIBLE);
+                                        if(!polylinePaths.isEmpty()) {
+                                            Polyline temp = polylinePaths.remove(0);
+                                            temp.remove();
+                                        }
                                     }
                                 }
                             });
@@ -280,6 +296,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         });
                         placeNameCustomHeader.setText(marker.getTitle());
                         placeAddressCustomHeader.setText(marker.getSnippet());
+                        placeNameCustomHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 25);
+                        distanceCustomHeader = (TextView) findViewById(R.id.distanceCustomHeader);
+                        durationCustomHeader = (TextView) findViewById(R.id.durationCustomHeader);
+                        distanceCustomHeader.setVisibility(View.INVISIBLE);
+                        durationCustomHeader.setVisibility(View.INVISIBLE);
                         descriptionCustomContent.setText(descriptionsMap.get(marker.getTitle()));
                         Resources res = getResources();
                         String mDrawableName = maps.get(marker.getTitle());
@@ -317,6 +338,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
     private void getDirection(LatLng src, LatLng des) {
+        Log.i("info", src.toString());
+        Log.i("info", des.toString());
         String requestURL = DIRECTION_URL_API + "origin=" + src.latitude + "," + src.longitude + "&destination=" + des.latitude + "," + des.longitude + "&key=AIzaSyCpE7zGp5M3gRPV60SDrxSKoNA5xpQ5nIQ";
         new GetDirection().execute(requestURL);
     }
@@ -385,12 +408,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             route.startLocation = new LatLng(jsonStartLocation.getDouble("lat"), jsonStartLocation.getDouble("lng"));
             route.endLocation = new LatLng(jsonEndLocation.getDouble("lat"), jsonEndLocation.getDouble("lng"));
             route.points = decodePolyLine(overview_polylineJson.getString("points"));
-
+            distanceCustomHeader = (TextView) findViewById(R.id.distanceCustomHeader);
+            durationCustomHeader = (TextView) findViewById(R.id.durationCustomHeader);
+            if(distanceCustomHeader != null && durationCustomHeader != null) {
+                distanceCustomHeader.setText("Khoảng Cách: " + route.distance.text);
+                durationCustomHeader.setText("Thời Gian: " + route.duration.text);
+            }
             routes.add(route);
         }
         polylinePaths = new ArrayList<>();
         for (Route route : routes) {
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(route.startLocation, 16));
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(route.startLocation, 16));
 
 //            originMarkers.add(mMap.addMarker(new MarkerOptions()
 //                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.start_blue))
@@ -410,6 +438,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 polylineOptions.add(route.points.get(i));
 
             polylinePaths.add(mMap.addPolyline(polylineOptions));
+
         }
 
         return routes;
